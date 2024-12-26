@@ -5,6 +5,8 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
+    @IBOutlet private var yesButton: UIButton!
+    @IBOutlet private var noButton: UIButton!
     
     // MARK: - Lifecycle
     struct QuizQuestion {
@@ -113,6 +115,16 @@ final class MovieQuizViewController: UIViewController {
                     show(quiz: viewModel)
         }
     }
+    private func disableButtons() {
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
+    }
+
+    private func enableButtons() {
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
+    }
+
         // приватный метод, который меняет цвет рамки
         // принимает на вход булевое значение и ничего не возвращает
         private func showAnswerResult(isCorrect: Bool) {
@@ -125,6 +137,7 @@ final class MovieQuizViewController: UIViewController {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0)
             { self.showNextQuestionOrResults()
                 self.imageView.layer.borderColor = UIColor.clear.cgColor
+                self.enableButtons()
             }
         }
     private func show(quiz result: QuizResultsViewModel) {
@@ -144,8 +157,10 @@ final class MovieQuizViewController: UIViewController {
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
     }
+    
         // метод вызывается, когда пользователь нажимает на кнопку "Да"
         @IBAction private func yesButtonClicked(_sender: UIButton) {
+            disableButtons()
             let currentQuestion = questions[currentQuestionIndex]
             let givenAnswer = true
             
@@ -153,6 +168,7 @@ final class MovieQuizViewController: UIViewController {
         }
         // метод вызывается, когда пользователь нажимает на кнопку "Нет"
         @IBAction private func noButtonClicked(_sender: UIButton) {
+            disableButtons()
             let currentQuestion = questions[currentQuestionIndex]
             let givenAnswer = false
             
