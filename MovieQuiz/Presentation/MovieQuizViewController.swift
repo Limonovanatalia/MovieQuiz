@@ -26,12 +26,12 @@ final class MovieQuizViewController: UIViewController {
     }
     // для состояния "Результат квиза"
     struct QuizResultsViewModel {
-      // строка с заголовком алерта
-      let title: String
-      // строка с текстом о количестве набранных очков
-      let text: String
-      // текст для кнопки алерта
-      let buttonText: String
+        // строка с заголовком алерта
+        let title: String
+        // строка с текстом о количестве набранных очков
+        let text: String
+        // текст для кнопки алерта
+        let buttonText: String
     }
     
     
@@ -108,38 +108,38 @@ final class MovieQuizViewController: UIViewController {
             
         } else {
             currentQuestionIndex += 1
-           
+            
             let nextQuestion = questions[currentQuestionIndex]
-                    let viewModel = convert(model: nextQuestion)
-                    
-                    show(quiz: viewModel)
+            let viewModel = convert(model: nextQuestion)
+            
+            show(quiz: viewModel)
         }
     }
     private func disableButtons() {
         yesButton.isEnabled = false
         noButton.isEnabled = false
     }
-
+    
     private func enableButtons() {
         yesButton.isEnabled = true
         noButton.isEnabled = true
     }
-
-        // приватный метод, который меняет цвет рамки
-        // принимает на вход булевое значение и ничего не возвращает
-        private func showAnswerResult(isCorrect: Bool) {
-            if isCorrect {
-                correctAnswers += 1
-            }
-            imageView.layer.masksToBounds = true
-            imageView.layer.borderWidth = 8
-            imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0)
-            { self.showNextQuestionOrResults()
-                self.imageView.layer.borderColor = UIColor.clear.cgColor
-                self.enableButtons()
-            }
+    
+    // приватный метод, который меняет цвет рамки
+    // принимает на вход булевое значение и ничего не возвращает
+    private func showAnswerResult(isCorrect: Bool) {
+        if isCorrect {
+            correctAnswers += 1
         }
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0)
+        { self.showNextQuestionOrResults()
+            self.imageView.layer.borderColor = UIColor.clear.cgColor
+            self.enableButtons()
+        }
+    }
     private func show(quiz result: QuizResultsViewModel) {
         let alert = UIAlertController(
             title: result.title,
@@ -151,27 +151,27 @@ final class MovieQuizViewController: UIViewController {
             self.correctAnswers = 0
             
             let firstQuestion = self.questions[self.currentQuestionIndex]
-                let firstQuestionModel = self.convert(model: firstQuestion)
-                self.show(quiz: firstQuestionModel)
+            let firstQuestionModel = self.convert(model: firstQuestion)
+            self.show(quiz: firstQuestionModel)
         }
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
     }
     
-        // метод вызывается, когда пользователь нажимает на кнопку "Да"
-        @IBAction private func yesButtonClicked(_sender: UIButton) {
-            disableButtons()
-            let currentQuestion = questions[currentQuestionIndex]
-            let givenAnswer = true
-            
-            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-        }
-        // метод вызывается, когда пользователь нажимает на кнопку "Нет"
-        @IBAction private func noButtonClicked(_sender: UIButton) {
-            disableButtons()
-            let currentQuestion = questions[currentQuestionIndex]
-            let givenAnswer = false
-            
-            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-        }
+    // метод вызывается, когда пользователь нажимает на кнопку "Да"
+    @IBAction private func yesButtonClicked(_sender: UIButton) {
+        disableButtons()
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = true
+        
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
+    // метод вызывается, когда пользователь нажимает на кнопку "Нет"
+    @IBAction private func noButtonClicked(_sender: UIButton) {
+        disableButtons()
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = false
+        
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
 }
