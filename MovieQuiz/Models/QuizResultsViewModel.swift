@@ -1,5 +1,5 @@
 //
-//  QuizResultsVieqModel.swift
+//  QuizResultsViewModel.swift
 //  MovieQuiz
 //
 //  Created by natalia.limonova on 28.12.2024.
@@ -18,4 +18,4 @@ import UIKit
      // текст для кнопки алерта
      let buttonText: String
  }
- 
+
