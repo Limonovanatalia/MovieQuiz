@@ -15,7 +15,9 @@ final class StatisticServiceImplementation: StatisticServiceProtocol {
         static let gamesCount = "gamesCount"
         static let correctAnswers = "correctAnswers"
         static let totalQuestions = "totalQuestions"
-        static let bestGame = "bestGame"
+        static let bestGameCorrect = "bestGameCorrect"
+        static let bestGameTotal = "bestGameTotal"
+        static let bestGameDate = "bestGameDate"
     }
     
     var gamesCount: Int {
@@ -40,13 +42,19 @@ final class StatisticServiceImplementation: StatisticServiceProtocol {
     
     var bestGame: GameResult? {
         get {
-            guard let data = userDefaults.data(forKey: Keys.bestGame) else { return nil }
-            return try? JSONDecoder().decode(GameResult.self, from: data)
+            let correct = userDefaults.integer(forKey: Keys.bestGameCorrect)
+            let total = userDefaults.integer(forKey: Keys.bestGameTotal)
+            let date = userDefaults.object(forKey: Keys.bestGameDate) as? Date ?? Date()
+            
+            if correct == 0 && total == 0 { return nil } // Если рекорд не установлен
+            
+            return GameResult(correct: correct, total: total, date: date)
         }
         set {
-            guard let newValue = newValue,
-                  let data = try? JSONEncoder().encode(newValue) else { return }
-            userDefaults.set(data, forKey: Keys.bestGame)
+            guard let newValue = newValue else { return }
+            userDefaults.set(newValue.correct, forKey: Keys.bestGameCorrect)
+            userDefaults.set(newValue.total, forKey: Keys.bestGameTotal)
+            userDefaults.set(newValue.date, forKey: Keys.bestGameDate)
         }
     }
     
@@ -54,7 +62,7 @@ final class StatisticServiceImplementation: StatisticServiceProtocol {
         gamesCount += 1
         correctAnswers += count
         totalQuestions += amount
-
+        
         let newResult = GameResult(correct: count, total: amount, date: Date())
         
         if let best = bestGame {

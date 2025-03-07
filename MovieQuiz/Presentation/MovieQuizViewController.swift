@@ -24,96 +24,92 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-            alertPresenter = AlertPresenter(viewController: self)
-            questionFactory = QuestionFactory(delegate: self)
-            textLabel.textColor = .ypWhite
-            questionFactory?.requestNextQuestion()
+        alertPresenter = AlertPresenter(viewController: self)
+        questionFactory = QuestionFactory(delegate: self)
+        textLabel.textColor = .ypWhite
+        questionFactory?.requestNextQuestion()
     }
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
-            guard let question = question else { return }
-            currentQuestion = question
-            let viewModel = convert(model: question)
-            
-            DispatchQueue.main.async { [weak self] in
-                self?.show(quiz: viewModel)
-            }
+        guard let question = question else { return }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
         }
+    }
     // MARK: - Конвертация вопроса в модель
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-            return QuizStepViewModel(
-                image: UIImage(named: model.image) ?? UIImage(),
-                question: model.text,
-                questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-            )
-        }
+        return QuizStepViewModel(
+            image: UIImage(named: model.image) ?? UIImage(),
+            question: model.text,
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
+        )
+    }
     private func showGameOverAlert() {
-            // Сохранение результатов игры
-            statisticService.store(correct: correctAnswers, total: questionsAmount)
-
-            // Форматирование информации о лучшем результате
-            let bestGameText: String
-            if let bestGame = statisticService.bestGame {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateStyle = .medium
-                let formattedDate = dateFormatter.string(from: bestGame.date)
-                bestGameText = "Рекорд: \(bestGame.correct) из \(bestGame.total) (\(formattedDate))"
-            } else {
-                bestGameText = "Рекордов пока нет"
-            }
-
-            // Вычисление средней точности
-            let accuracyText = String(format: "%.2f", statisticService.totalAccuracy)
-
-            // Формирование текста для алерта
-            let text = """
-                Ваш результат: \(correctAnswers) из \(questionsAmount)
-                \(bestGameText)
-                Количество игр: \(statisticService.gamesCount)
-                Средняя точность: \(accuracyText)%
-                """
-
-            // Создание модели алерта
-            let alertModel = AlertModel(
-                title: "Этот раунд окончен!",
-                message: text,
-                buttonText: "Сыграть ещё раз"
-            ) { [weak self] in
-                self?.restartGame()
-            }
-
-            // Показ алерта через AlertPresenter
-            alertPresenter?.showAlert(model: alertModel)
-        }
-
-        // MARK: - Отображение вопроса
         
-        private func show(quiz step: QuizStepViewModel) {
-            imageView.image = step.image
-            textLabel.text = step.question
-            counterLabel.text = step.questionNumber
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
+        
+        let bestGameText: String
+        if let bestGame = statisticService.bestGame {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "dd.MM.yyyy HH:mm"
+            let formattedDate = dateFormatter.string(from: bestGame.date)
+            bestGameText = "Рекорд: \(bestGame.correct)/\(bestGame.total) (\(formattedDate))"
+        } else {
+            bestGameText = "Рекордов пока нет"
         }
         
-        // MARK: - Переход к следующему вопросу или завершение игры
+        let accuracyText = String(format: "%.2f", statisticService.totalAccuracy)
         
-        private func showNextQuestionOrResults() {
-            if currentQuestionIndex == questionsAmount - 1 {
-                showGameOverAlert() // Если это последний вопрос, показываем статистику
-            } else {
-                currentQuestionIndex += 1
-                questionFactory?.requestNextQuestion()
-            }
+        let text = """
+            Ваш результат: \(correctAnswers)/\(questionsAmount)
+            Количество сыгранных квизов: \(statisticService.gamesCount)
+            \(bestGameText)
+            Средняя точность: \(accuracyText)%
+            """
+        
+        
+        let alertModel = AlertModel(
+            title: "Этот раунд окончен!",
+            message: text,
+            buttonText: "Сыграть ещё раз"
+        ) { [weak self] in
+            self?.restartGame()
         }
         
-        // MARK: - Перезапуск игры
-        
-        private func restartGame() {
-            currentQuestionIndex = 0
-            correctAnswers = 0
+        alertPresenter?.showAlert(model: alertModel)
+    }
+    
+    // MARK: - Отображение вопроса
+    
+    private func show(quiz step: QuizStepViewModel) {
+        imageView.image = step.image
+        textLabel.text = step.question
+        counterLabel.text = step.questionNumber
+    }
+    
+    // MARK: - Переход к следующему вопросу или завершение игры
+    
+    private func showNextQuestionOrResults() {
+        if currentQuestionIndex == questionsAmount - 1 {
+            showGameOverAlert()
+        } else {
+            currentQuestionIndex += 1
             questionFactory?.requestNextQuestion()
         }
-        
+    }
+    
+    // MARK: - Перезапуск игры
+    
+    private func restartGame() {
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory?.requestNextQuestion()
+    }
+    
     // MARK: - Отображение результата ответа
     
     private func showAnswerResult(isCorrect: Bool) {
@@ -123,7 +119,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.red.cgColor
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
