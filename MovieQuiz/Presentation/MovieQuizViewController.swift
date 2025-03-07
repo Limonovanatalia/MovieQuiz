@@ -1,6 +1,7 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    private var alertPresenter: AlertPresenter?
     
     
     @IBOutlet private var imageView: UIImageView!
@@ -13,68 +14,106 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
-    
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
+    private let statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
     
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        questionFactory = QuestionFactory(delegate: self)
-        textLabel.textColor = .ypWhite
+            alertPresenter = AlertPresenter(viewController: self)
+            questionFactory = QuestionFactory(delegate: self)
+            textLabel.textColor = .ypWhite
             questionFactory?.requestNextQuestion()
     }
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else { return }
+            guard let question = question else { return }
             currentQuestion = question
             let viewModel = convert(model: question)
             
             DispatchQueue.main.async { [weak self] in
                 self?.show(quiz: viewModel)
             }
-    }
+        }
     // MARK: - Конвертация вопроса в модель
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-        )
-    }
-    
-    // MARK: - Отображение вопроса
-    
-    private func show(quiz step: QuizStepViewModel) {
-        imageView.image = step.image
-        textLabel.text = step.question
-        counterLabel.text = step.questionNumber
-    }
-    
-    // MARK: - Переход к следующему вопросу или результатам
-    
-    private func showNextQuestionOrResults() {
-        if currentQuestionIndex == questionsAmount - 1 {
-                let text = correctAnswers == questionsAmount ?
-                    "Поздравляем, вы ответили на 10 из 10!" :
-                    "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
-                
-                let viewModel = QuizResultsViewModel(
-                    title: "Этот раунд окончен!",
-                    text: text,
-                    buttonText: "Сыграть ещё раз"
-                )
-                show(quiz: viewModel)
+            return QuizStepViewModel(
+                image: UIImage(named: model.image) ?? UIImage(),
+                question: model.text,
+                questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
+            )
+        }
+    private func showGameOverAlert() {
+            // Сохранение результатов игры
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
+
+            // Форматирование информации о лучшем результате
+            let bestGameText: String
+            if let bestGame = statisticService.bestGame {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateStyle = .medium
+                let formattedDate = dateFormatter.string(from: bestGame.date)
+                bestGameText = "Рекорд: \(bestGame.correct) из \(bestGame.total) (\(formattedDate))"
+            } else {
+                bestGameText = "Рекордов пока нет"
+            }
+
+            // Вычисление средней точности
+            let accuracyText = String(format: "%.2f", statisticService.totalAccuracy)
+
+            // Формирование текста для алерта
+            let text = """
+                Ваш результат: \(correctAnswers) из \(questionsAmount)
+                \(bestGameText)
+                Количество игр: \(statisticService.gamesCount)
+                Средняя точность: \(accuracyText)%
+                """
+
+            // Создание модели алерта
+            let alertModel = AlertModel(
+                title: "Этот раунд окончен!",
+                message: text,
+                buttonText: "Сыграть ещё раз"
+            ) { [weak self] in
+                self?.restartGame()
+            }
+
+            // Показ алерта через AlertPresenter
+            alertPresenter?.showAlert(model: alertModel)
+        }
+
+        // MARK: - Отображение вопроса
+        
+        private func show(quiz step: QuizStepViewModel) {
+            imageView.image = step.image
+            textLabel.text = step.question
+            counterLabel.text = step.questionNumber
+        }
+        
+        // MARK: - Переход к следующему вопросу или завершение игры
+        
+        private func showNextQuestionOrResults() {
+            if currentQuestionIndex == questionsAmount - 1 {
+                showGameOverAlert() // Если это последний вопрос, показываем статистику
             } else {
                 currentQuestionIndex += 1
                 questionFactory?.requestNextQuestion()
             }
-    }
-    
+        }
+        
+        // MARK: - Перезапуск игры
+        
+        private func restartGame() {
+            currentQuestionIndex = 0
+            correctAnswers = 0
+            questionFactory?.requestNextQuestion()
+        }
+        
     // MARK: - Отображение результата ответа
     
     private func showAnswerResult(isCorrect: Bool) {
