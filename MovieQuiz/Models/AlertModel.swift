@@ -1,4 +1,3 @@
-///Users/natalia.limonova/Desktop/Projects/MovieQuiz-ios/MovieQuiz/Models/AlertPresenter.swift
 //  AlertPresenter.swift
 //  MovieQuiz
 //

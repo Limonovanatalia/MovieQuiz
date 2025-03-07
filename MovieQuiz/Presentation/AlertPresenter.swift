@@ -15,7 +15,7 @@ final class AlertPresenter {
     }
 
     func showAlert(model: AlertModel) {
-        guard let viewController = viewController else { return }
+        guard let viewController else { return }
 
                let alert = UIAlertController(
                    title: model.title,
