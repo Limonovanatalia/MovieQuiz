@@ -1,6 +1,7 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    private var alertPresenter: AlertPresenter?
     
     
     @IBOutlet private var imageView: UIImageView!
@@ -8,34 +9,37 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private var counterLabel: UILabel!
     @IBOutlet private var yesButton: UIButton!
     @IBOutlet private var noButton: UIButton!
+    @IBOutlet weak var questionLabel: UILabel!
     
     
     
-    private var currentQuestionIndex = 0
-    private var correctAnswers = 0
-    
+    private var currentQuestionIndex: Int = .zero
+    private var correctAnswers: Int = .zero
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
+    private let statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
     
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        alertPresenter = AlertPresenter(viewController: self)
         questionFactory = QuestionFactory(delegate: self)
         textLabel.textColor = .ypWhite
-            questionFactory?.requestNextQuestion()
+        questionFactory?.requestNextQuestion()
+        questionLabel.font = UIFont(name: "YSDisplay-Medium", size: 20.0)
     }
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else { return }
-            currentQuestion = question
-            let viewModel = convert(model: question)
-            
-            DispatchQueue.main.async { [weak self] in
-                self?.show(quiz: viewModel)
-            }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
+        }
     }
     // MARK: - Конвертация вопроса в модель
     
@@ -46,6 +50,40 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
     }
+    private func showGameOverAlert() {
+        
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
+        
+        let bestGameText: String
+        if let bestGame = statisticService.bestGame {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "dd.MM.yyyy HH:mm"
+            let formattedDate = dateFormatter.string(from: bestGame.date)
+            bestGameText = "Рекорд: \(bestGame.correct)/\(bestGame.total) (\(formattedDate))"
+        } else {
+            bestGameText = "Рекордов пока нет"
+        }
+        
+        let accuracyText = String(format: "%.2f", statisticService.totalAccuracy)
+        
+        let text = """
+            Ваш результат: \(correctAnswers)/\(questionsAmount)
+            Количество сыгранных квизов: \(statisticService.gamesCount)
+            \(bestGameText)
+            Средняя точность: \(accuracyText)%
+            """
+        
+        
+        let alertModel = AlertModel(
+            title: "Этот раунд окончен!",
+            message: text,
+            buttonText: "Сыграть ещё раз"
+        ) { [weak self] in
+            self?.restartGame()
+        }
+        
+        alertPresenter?.showAlert(model: alertModel)
+    }
     
     // MARK: - Отображение вопроса
     
@@ -55,24 +93,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         counterLabel.text = step.questionNumber
     }
     
-    // MARK: - Переход к следующему вопросу или результатам
+    // MARK: - Переход к следующему вопросу или завершение игры
     
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
-                let text = correctAnswers == questionsAmount ?
-                    "Поздравляем, вы ответили на 10 из 10!" :
-                    "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
-                
-                let viewModel = QuizResultsViewModel(
-                    title: "Этот раунд окончен!",
-                    text: text,
-                    buttonText: "Сыграть ещё раз"
-                )
-                show(quiz: viewModel)
-            } else {
-                currentQuestionIndex += 1
-                questionFactory?.requestNextQuestion()
-            }
+            showGameOverAlert()
+        } else {
+            currentQuestionIndex += 1
+            questionFactory?.requestNextQuestion()
+        }
+    }
+    
+    // MARK: - Перезапуск игры
+    
+    private func restartGame() {
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory?.requestNextQuestion()
     }
     
     // MARK: - Отображение результата ответа
@@ -84,7 +121,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.red.cgColor
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
