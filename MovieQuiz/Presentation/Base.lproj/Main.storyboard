@@ -26,7 +26,7 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Вопрос:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="StZ-Op-24m" userLabel="Question Title label">
                                                 <rect key="frame" x="0.0" y="0.0" width="338" height="23.666666666666668"/>
                                                 <color key="tintColor" name="YP White"/>
-                                                <fontDescription key="fontDescription" name="VKSansDisplay-Medium" family="VK Sans Display" pointSize="20"/>
+                                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="20"/>
                                                 <color key="textColor" name="YP White"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
@@ -136,6 +136,7 @@
                         <outlet property="counterLabel" destination="SrI-0P-1Lg" id="pab-UI-3f9"/>
                         <outlet property="imageView" destination="2kI-M2-gtD" id="f4c-QP-JFm"/>
                         <outlet property="noButton" destination="C9a-xD-TI7" id="uXl-Hi-swU"/>
+                        <outlet property="questionLabel" destination="StZ-Op-24m" id="whc-7I-77f"/>
                         <outlet property="textLabel" destination="VbK-WH-W9O" id="VVS-BU-oXX"/>
                         <outlet property="yesButton" destination="3jS-EW-bCV" id="U1o-cY-ZMB"/>
                     </connections>
