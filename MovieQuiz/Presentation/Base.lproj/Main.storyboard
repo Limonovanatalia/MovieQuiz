@@ -8,6 +8,11 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="YS Display-Medium.ttf">
+            <string>YSDisplay-Medium</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--Movie Quiz View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -122,17 +127,27 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="o07-vj-K6x">
+                                <rect key="frame" x="151.33333333333334" y="418" width="111.33333333333334" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="FrR-yN-zJR"/>
+                                    <constraint firstAttribute="width" constant="111.33" id="LaX-uG-eG5"/>
+                                </constraints>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
+                            <constraint firstItem="o07-vj-K6x" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="8Cu-tL-yA2"/>
                             <constraint firstItem="liC-hu-vtW" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="R9S-4C-h8s"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="liC-hu-vtW" secondAttribute="bottom" id="W7Q-Sx-Sez"/>
                             <constraint firstItem="liC-hu-vtW" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="ems-jW-Z5C"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="liC-hu-vtW" secondAttribute="trailing" constant="20" id="kX3-Iz-HpD"/>
+                            <constraint firstItem="o07-vj-K6x" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="y33-g4-NHJ"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="o07-vj-K6x" id="1z9-9s-Wev"/>
                         <outlet property="counterLabel" destination="SrI-0P-1Lg" id="pab-UI-3f9"/>
                         <outlet property="imageView" destination="2kI-M2-gtD" id="f4c-QP-JFm"/>
                         <outlet property="noButton" destination="C9a-xD-TI7" id="uXl-Hi-swU"/>
