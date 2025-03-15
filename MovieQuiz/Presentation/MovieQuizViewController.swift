@@ -1,6 +1,9 @@
 import UIKit
+import Foundation
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+    
+    
     private var alertPresenter: AlertPresenter?
     
     
@@ -10,7 +13,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private var yesButton: UIButton!
     @IBOutlet private var noButton: UIButton!
     @IBOutlet weak var questionLabel: UILabel!
-    
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     
     private var currentQuestionIndex: Int = .zero
@@ -26,29 +29,76 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         alertPresenter = AlertPresenter(viewController: self)
-        questionFactory = QuestionFactory(delegate: self)
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         textLabel.textColor = .ypWhite
-        questionFactory?.requestNextQuestion()
+        showLoadingIndicator()
+        questionFactory?.loadData()
         questionLabel.font = UIFont(name: "YSDisplay-Medium", size: 20.0)
+        
     }
+    // MARK: – Обработка ошибки загрузки
+    
+    func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        let model = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать еще раз"
+        ) { [weak self] in
+            guard let self = self else { return }
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            self.questionFactory?.loadData()
+        }
+        alertPresenter?.showAlert(model: model)
+    }
+    // MARK: – Индикатор загрузки
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    
+    func didLoadDataFromServer() {
+        DispatchQueue.main.async { [weak self] in
+            self?.hideLoadingIndicator()
+            self?.questionFactory?.requestNextQuestion()
+        }
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        DispatchQueue.main.async { [weak self] in
+            self?.showNetworkError(message: error.localizedDescription)
+        }
+    }
+    
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else { return }
-        currentQuestion = question
-        let viewModel = convert(model: question)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
+            guard let question = question else {
+                DispatchQueue.main.async { [weak self] in
+                    self?.showNetworkError(message: "Не удалось загрузить вопрос. Проверьте соединение и попробуйте снова.")
+                }
+                return
+            }
+            currentQuestion = question
+            let viewModel = convert(model: question)
+            DispatchQueue.main.async { [weak self] in
+                self?.hideLoadingIndicator()
+                self?.show(quiz: viewModel)
+            }
     }
     // MARK: - Конвертация вопроса в модель
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-        )
+           return QuizStepViewModel(
+               image: UIImage(data: model.image) ?? UIImage(),
+               question: model.text,
+               questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
+           )
     }
     private func showGameOverAlert() {
         
@@ -100,6 +150,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             showGameOverAlert()
         } else {
             currentQuestionIndex += 1
+            showLoadingIndicator()
             questionFactory?.requestNextQuestion()
         }
     }
@@ -179,3 +230,4 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }
+
