@@ -13,7 +13,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private var yesButton: UIButton!
     @IBOutlet private var noButton: UIButton!
     @IBOutlet weak var questionLabel: UILabel!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
     
     private var currentQuestionIndex: Int = .zero
@@ -78,27 +78,27 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
-            guard let question = question else {
-                DispatchQueue.main.async { [weak self] in
-                    self?.showNetworkError(message: "Не удалось загрузить вопрос. Проверьте соединение и попробуйте снова.")
-                }
-                return
-            }
-            currentQuestion = question
-            let viewModel = convert(model: question)
+        guard let question = question else {
             DispatchQueue.main.async { [weak self] in
-                self?.hideLoadingIndicator()
-                self?.show(quiz: viewModel)
+                self?.showNetworkError(message: "Не удалось загрузить вопрос. Проверьте соединение и попробуйте снова.")
             }
+            return
+        }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.hideLoadingIndicator()
+            self?.show(quiz: viewModel)
+        }
     }
     // MARK: - Конвертация вопроса в модель
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-           return QuizStepViewModel(
-               image: UIImage(data: model.image) ?? UIImage(),
-               question: model.text,
-               questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-           )
+        return QuizStepViewModel(
+            image: UIImage(data: model.image) ?? UIImage(),
+            question: model.text,
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
+        )
     }
     private func showGameOverAlert() {
         

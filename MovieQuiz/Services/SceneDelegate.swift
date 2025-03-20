@@ -8,7 +8,9 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
-    ) {
+    ){
+        if CommandLine.arguments.contains("UI-TESTING") { }
+
         guard (scene as? UIWindowScene) != nil else { return }
     }
     

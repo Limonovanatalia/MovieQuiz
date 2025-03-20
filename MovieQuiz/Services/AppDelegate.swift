@@ -6,6 +6,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        if CommandLine.arguments.contains("UI-TESTING") { }
         return true
     }
 
