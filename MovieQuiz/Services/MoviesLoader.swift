@@ -12,7 +12,7 @@ protocol MoviesLoading {
     func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void)
 }
 
-class MoviesLoader: MoviesLoading {
+final class MoviesLoader: MoviesLoading {
     
     // MARK: - NetworkClient
     private let networkClient: NetworkRouting
@@ -21,9 +21,6 @@ class MoviesLoader: MoviesLoading {
         self.networkClient = networkClient
     }
     // MARK: - URL
-    private var mostPopularMoviesUrl: URL? {
-        return URL(string: "https://tv-api.com/en/API/Top250Movies/k_zcuw1ytf")
-    }
     
     func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void) {
         guard let url = mostPopularMoviesUrl else {
@@ -45,6 +42,9 @@ class MoviesLoader: MoviesLoading {
                 handler(.failure(error))
             }
         }
+    }
+    private var mostPopularMoviesUrl: URL? {
+        return URL(string: "https://tv-api.com/en/API/Top250Movies/k_zcuw1ytf")
     }
 }
 

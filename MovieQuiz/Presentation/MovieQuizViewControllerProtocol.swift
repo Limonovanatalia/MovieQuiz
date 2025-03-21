@@ -5,9 +5,6 @@
 //  Created by natalia.limonova on 20.03.2025.
 //
 
-import Foundation
-import UIKit
-
 protocol MovieQuizViewControllerProtocol: AnyObject {
     func show(quiz step: QuizStepViewModel)
     func show(quiz result: QuizResultsViewModel)

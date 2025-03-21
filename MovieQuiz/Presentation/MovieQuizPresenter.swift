@@ -4,8 +4,9 @@
 //
 //  Created by natalia.limonova on 20.03.2025.
 //
-import UIKit
+
 import Foundation
+import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     private let statisticService: StatisticServiceProtocol!
