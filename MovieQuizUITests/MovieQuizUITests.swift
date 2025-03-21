@@ -75,7 +75,7 @@ final class MovieQuizUITests: XCTestCase {
                 sleep(2)
             }
             
-            let alert = app.alerts["Game results"]
+            let alert = app.alerts["Этот раунд окончен!"]
             
             XCTAssertTrue(alert.exists, "Алерт не появился")
             XCTAssertEqual(alert.label, "Этот раунд окончен!", "Неверный заголовок алерта")
