@@ -17,11 +17,10 @@
   },
   "testTargets" : [
     {
-      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MovieQuiz.xcodeproj",
-        "identifier" : "ADD20F602D883FAD0099F795",
-        "name" : "MovieQuizTests"
+        "identifier" : "AD712FFC2D8ABB1900E9219F",
+        "name" : "MovieQuizUITests"
       }
     },
     {
@@ -33,10 +32,25 @@
       }
     },
     {
+      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MovieQuiz.xcodeproj",
-        "identifier" : "AD712FFC2D8ABB1900E9219F",
-        "name" : "MovieQuizUITests"
+        "identifier" : "ADD20F602D883FAD0099F795",
+        "name" : "MovieQuizTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:MovieQuiz.xcodeproj",
+        "identifier" : "AD10172B2D8CB721003F114F",
+        "name" : "MovieQuizPresenterTests.swift."
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:MovieQuiz.xcodeproj",
+        "identifier" : "AD10171C2D8CB47F003F114F",
+        "name" : "MovieQuizViewControllerMock"
       }
     }
   ],

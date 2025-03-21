@@ -87,10 +87,10 @@ final class MovieQuizUITests: XCTestCase {
         sleep(2)
         for _ in 1...10 {
             app.buttons["No"].tap()
-            sleep(2)
+            sleep(5)
         }
 
-        let alert = app.alerts["Game results"]
+        let alert = app.alerts["Этот раунд окончен!"]
         
         // Ожидание появления алерта
         XCTAssertTrue(alert.waitForExistence(timeout: 5), "Алерт не появился")
@@ -104,7 +104,7 @@ final class MovieQuizUITests: XCTestCase {
         // Нажимаем на кнопку
         alert.buttons.firstMatch.tap()
 
-        sleep(2)
+        sleep(5)
 
         let indexLabel = app.staticTexts["Index"]
 
